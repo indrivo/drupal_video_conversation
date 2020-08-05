@@ -1,0 +1,57 @@
+drupal_video_conversation.drupal_candidate:
+  path: '/drupal_candidate'
+  defaults:
+    _title: 'drupal Video Candidate'
+    _controller: '\Drupal\drupal_video_conversation\Controller\drupalVideoCandidateController::view'
+  requirements:
+    _permission: 'administer drupal_video_conversation'
+
+drupal_video_conversation.drupal_video_administrator:
+  path: '/drupal_administrator'
+  defaults:
+    _title: 'drupal Video Administrator.'
+    _controller: '\Drupal\drupal_video_conversation\Controller\drupalVideoAdministratorController::view'
+  requirements:
+    _permission: 'administer drupal_video_conversation'
+
+drupal_video_conversation.store_record:
+  path: '/store_record'
+  defaults:
+    _title: 'Store record.'
+    _controller: '\Drupal\drupal_video_conversation\Controller\drupalVideoAdministratorController::storeRecord'
+  requirements:
+    _permission: 'access content'
+
+drupal_video_conversation.merge_chunks:
+  path: '/merge_chunks'
+  defaults:
+    _title: 'Merge Chunks.'
+    _controller: '\Drupal\drupal_video_conversation\Controller\drupalVideoAdministratorController::mergeChunks'
+  requirements:
+    _permission: 'access content'
+
+drupal_video_conversation.logging:
+  path: '/logging'
+  defaults:
+    _title: 'Logging.'
+    _controller: '\Drupal\drupal_video_conversation\Controller\drupalVideoAdministratorController::logging'
+  requirements:
+    _permission: 'broadcast video'
+
+drupal_video_conversation.ban:
+  path: '/ban'
+  defaults:
+    _title: 'Ban'
+    _controller: '\Drupal\drupal_video_conversation\Controller\drupalVideoAdministratorController::ban'
+  requirements:
+    _permission: 'broadcast video'
+
+drupal_video_conversation.config:
+  path: '/admin/config/services/drupal_video_monitoring'
+  defaults:
+    _form: '\Drupal\drupal_video_conversation\Form\drupalVideoConversationSettings'
+    _title: 'drupal Video Monitoring'
+  requirements:
+    _permission: 'administer drupal_video_conversation'
+  options:
+    _admin_route: TRUE

@@ -1,0 +1,22 @@
+<div class="video_container">
+  <div id="video_wrapper" class="video_wrapper">
+    <video id="drupal_candidate_exam_video" playsinline autoplay muted></video>
+  </div>
+
+  <div id="chat" class="chat">
+    <div id="sender_section" class="send-wrapper">
+      <input id="chatInput" class="chatInput form-control" type="text" size="40">
+      <button id="chatSendBtn" class="chatSendBtn btn">Trimite mesaj</button>
+    </div>
+
+    <div id="chatMessages" class="chatMessages"></div>
+  </div>
+</div>
+
+{% if variables["uid"] %}
+  <p id="drupal_uid" class="hide"> {{ variables['uid'] }}</p>
+{% endif %}
+
+{% if variables["gid"] %}
+  <p id="drupal_gid" class="hide"> {{ variables['gid'] }}</p>
+{% endif %}

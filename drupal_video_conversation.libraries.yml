@@ -1,0 +1,29 @@
+drupal_candidate:
+  js:
+    js/libs/socket.io/2.2.0/socket.io.js: {}
+    https://webrtc.github.io/adapter/adapter-latest.js: { type: external, minified: false }
+    js/iceServers.js: {}
+    js/drupal_candidate.js: {}
+    js/generalService.js: {}
+  css:
+    theme:
+      css/drupal_candidate.css: {}
+
+drupal_candidate_exam:
+  js:
+    js/libs/socket.io/2.2.0/socket.io.js: {}
+    js/drupal_candidate_exam.js: {}
+    js/generalService.js: {}
+  css:
+    theme:
+      css/drupal_candidate_exam.css: {}
+
+drupal_administrator:
+  js:
+    js/libs/socket.io/2.2.0/socket.io.js: {}
+    https://webrtc.github.io/adapter/adapter-latest.js: { type: external, minified: false }
+    js/iceServers.js: {}
+    js/drupal_administrator.js: {}
+  css:
+    theme:
+      css/drupal_administrator.css: {}

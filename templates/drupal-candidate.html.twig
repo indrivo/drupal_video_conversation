@@ -1,0 +1,52 @@
+<div class="video_container">
+  <div id="video_wrapper" class="video_wrapper">
+    <video playsinline autoplay muted></video>
+
+    <div id="pipContainer" class="pip-container">
+      <button id="pc-stats-start" class="btn btn--blue hide">{{ "pc stats start"|t }}</button>
+      <button id="pc-stats-stop" class="btn btn--blue hide">{{ "pc stats stop"|t }}</button>
+    </div>
+
+  </div>
+
+  <div id="chat" class="chat">
+    <div id="sender_section" class="send-wrapper">
+      <input id="chatInput" class="chatInput form-control" type="text" size="40">
+      <button id="chatSendBtn" class="chatSendBtn btn">Trimite mesaj</button>
+    </div>
+
+    <div id="chatMessages" class="chatMessages"></div>
+  </div>
+
+  <div id="stats-wrapper">
+    <div class="stats-box"> </div>
+  </div>
+
+  {# Elements created with purpose to send data to administrator #}
+  {% if variables["audio"] %}
+  <audio id="audio" class="dn">
+    <source src='{{variables["audio"]}}' type="audio/mp3">
+  </audio>
+  {% endif %}
+
+  {% if variables["username"] %}
+    <p id="candidate_name" class="dn"> {{ variables['username'] }}</p>
+  {% endif %}
+
+  {% if variables["uid"] %}
+    <p id="drupal_uid" class="dn"> {{ variables['uid'] }}</p>
+  {% endif %}
+
+  {% if variables["group_label"] %}
+    <p id="group_label" class="dn"> {{ variables['group_label'] }}</p>
+  {% endif %}
+
+  {% if variables["gid"] %}
+    <p id="drupal_gid" class="dn"> {{ variables['gid'] }}</p>
+  {% endif %}
+
+  {% if variables["video_monitoring_required"] != NULL %}
+    <p id="video_monitoring_required" class="dn">{{ variables["video_monitoring_required"] }}</p>
+  {% endif %}
+</div>
+

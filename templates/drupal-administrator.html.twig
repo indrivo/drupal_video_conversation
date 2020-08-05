@@ -1,0 +1,7 @@
+<div id="video_container" class="video_container"></div>
+
+{% if variables["audio"] %}
+<audio id="audio" controls style="display:none;">
+  <source src='{{variables["audio"]}}' type="audio/mp3">
+</audio>
+{% endif %}

@@ -1,0 +1,7 @@
+name: drupal Video Conversation
+type: module
+description: Will be used for video monitoring during the exam.
+package: drupal
+core: 8.x
+dependencies:
+  - block

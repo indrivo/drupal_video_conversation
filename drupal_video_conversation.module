@@ -1,0 +1,180 @@
+<?php
+
+/**
+ * @file
+ * Video monitoring module on drupal website.
+ *
+ * Main functions for setting up monitoring and cleanup cronjobs are found in
+ * this module.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\group\Entity\Group;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+
+/**
+ * @file
+ * Primary module hooks for drupal Video Conversation module.
+ */
+
+/**
+ * Helper _drupal_video_conversation_get_audio function.
+ *
+ * @return string
+ *   Full path to the audio file.
+ */
+function _drupal_video_conversation_get_audio() {
+  // Prepare path to audio file.
+  $s = DIRECTORY_SEPARATOR;
+  $host = \Drupal::request()->getHost();
+  $module_path = drupal_get_path('module', 'drupal_video_conversation');
+  $l_addons = '/';
+  if ($host == 'localhost') {
+    $l_addons = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+  }
+  $path = $l_addons . $module_path . $s . 'sounds' . $s . 'to-the-point.mp3';
+  return $path;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function drupal_video_conversation_theme($existing, $type, $theme, $path) {
+  return [
+    'drupal_candidate' => [
+      'variables' => [
+        'data' => $theme,
+      ],
+    ],
+    'drupal_candidate_exam' => [
+      'variables' => [
+        'data' => $theme,
+      ],
+    ],
+    'drupal_administrator' => [
+      'variables' => [
+        'data' => $theme,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_hook() for drupal_candidate_exam.
+ */
+function drupal_video_conversation_preprocess_drupal_candidate_exam(&$variables) {
+  $current_user = \Drupal::currentUser();
+  $current_route = \Drupal::routeMatch();
+
+  $group_param = $current_route->getParameter('group');
+  $gid = '';
+  if ($group_param) {
+    $group = is_object($group_param) ? $group_param : Group::load($group_param);
+    $gid = $group->id();
+  }
+
+  $variables['#attached']['library'][] = 'drupal_video_conversation/drupal_candidate_exam';
+  $variables['variables']['gid'] = $gid;
+  $variables['variables']['uid'] = $current_user->id();
+}
+
+/**
+ * Implements hook_preprocess_hook() for drupal_candidate.
+ */
+function drupal_video_conversation_preprocess_drupal_candidate(&$variables) {
+  $current_route = \Drupal::routeMatch();
+  $current_user = \Drupal::currentUser();
+  $username = $current_user->getUsername();
+
+  $group_param = $current_route->getParameter('group');
+  $group = '';
+  if ($group_param) {
+    $group = is_object($group_param) ? $group_param : Group::load($group_param);
+    $group_label = $group->label();
+    $gid = $group->id();
+  }
+
+  $video_monitoring_required = "0";
+  if ($group && $group->hasField('field_video_monitoring')) {
+    $video_monitoring_required = $group->get('field_video_monitoring')->getValue()[0]['value'];
+  }
+
+  $variables['#attached']['library'][] = 'drupal_video_conversation/drupal_candidate';
+  $variables['variables']['audio'] = _drupal_video_conversation_get_audio();
+  $variables['variables']['group_label'] = $group_label;
+  $variables['variables']['gid'] = $gid;
+  $variables['variables']['username'] = $username;
+  $variables['variables']['uid'] = $current_user->id();
+  $variables['variables']['video_monitoring_required'] = $video_monitoring_required;
+}
+
+/**
+ * Implements hook_block_access().
+ */
+function drupal_video_conversation_block_access($block, $operation, $account) {
+  /* @see Show "drupal Video Candidate Block" if “video monitoring” in group entity is required or not. */
+  $candidate_video_blocks_ids = ['drupalvideocandidateexamblock', 'drupalvideocandidateblock'];
+  if (in_array($block->id(), $candidate_video_blocks_ids)) {
+    $current_route = \Drupal::routeMatch();
+    $route_param_group = $current_route->getParameter('group');
+    if (!$route_param_group) {
+      return;
+    }
+
+    $group = is_object($route_param_group) ? $route_param_group : Group::load($route_param_group);
+    $video_monitoring_required = "0";
+    if ($group && $group->hasField('field_video_monitoring')) {
+      $video_monitoring_required = $group->get('field_video_monitoring')->getValue()[0]['value'];
+    }
+
+    if (!$video_monitoring_required) {
+      return AccessResult::forbidden();
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_hook() for drupal_administrator.
+ */
+function drupal_video_conversation_preprocess_drupal_administrator(&$variables) {
+  $variables['#attached']['library'][] = 'drupal_video_conversation/drupal_administrator';
+  $variables['variables']['audio'] = _drupal_video_conversation_get_audio();
+}
+
+/**
+ * Implements hook_cron().
+ */
+function drupal_video_conversation_cron() {
+  $path = \Drupal::service('file_system')->realpath(file_default_scheme() . "://");
+  $path .= '/video';
+  $initial = $final = [];
+  $max_days = \Drupal::config('drupal_video_conversation.settings')->get('video_expiry_days');
+  exec("cd $path && ls -l", $initial, $status);
+  exec("cd $path && ls -l && find . -mtime +$max_days -delete && ls -l", $final, $status);
+  $nr_files = (int) $initial - (int) $final;
+  if ($status == 0) {
+    \Drupal::logger('drupal Video Conversation')->info(t(
+      'Cleanup up a total of @total files older than @days days.',
+      ['@total' => $nr_files, '@days' => $max_days]
+    ));
+  }
+  else {
+    \Drupal::logger('drupal Video Conversation')->error(t(
+      'Something went wrong. Please check the video files directory.'
+    ));
+  }
+}
+
+/**
+ * Implement hook_ENTITY_TYPE_view_alter.
+ */
+function drupal_video_conversation_group_content_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  // Deny access to videos for users who do not have permission.
+  if (isset($build['field_video']) && $build['#view_mode'] == 'full') {
+    $allowed = \Drupal::currentUser()->hasPermission('view saved video files');
+    if (!$allowed) {
+      unset($build['field_video']);
+    }
+  }
+}

@@ -1,0 +1,12 @@
+administer drupal_video_conversation:
+  title: 'Administer drupal Video Conversation.'
+  description: 'Administer drupal Video Conversation.'
+  restrict access: true
+
+broadcast video:
+  title: 'Broadcast video.'
+  description: 'Broadcast video.'
+
+view saved video files:
+  title: "View saved video files."
+  description: 'View saved video files.'

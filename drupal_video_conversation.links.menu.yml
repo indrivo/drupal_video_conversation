@@ -1,0 +1,4 @@
+drupal_video_conversation.config:
+  title: 'drupal Video Monitoring'
+  parent: system.admin_config_services
+  route_name: 'drupal_video_conversation.config'
